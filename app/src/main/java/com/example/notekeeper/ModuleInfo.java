@@ -8,7 +8,6 @@ import android.os.Parcelable;
  */
 
 public final class ModuleInfo implements Parcelable {
-    public static final Creator<ModuleInfo> CREATOR = ;
     private final String mModuleId;
     private final String mTitle;
     private boolean mIsComplete = false;
@@ -73,5 +72,22 @@ public final class ModuleInfo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
 
+    }
+
+    public final static  Parcelable.Creator<ModuleInfo> CREATOR;
+
+    static {
+        CREATOR = new Creator<ModuleInfo>() {
+
+            @Override
+            public ModuleInfo createFromParcel(Parcel source) {
+                return new ModuleInfo(source);
+            }
+
+            @Override
+            public ModuleInfo[] newArray(int size) {
+                return new ModuleInfo[size];
+            }
+        };
     }
 }
