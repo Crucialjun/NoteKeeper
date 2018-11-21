@@ -28,6 +28,18 @@ public final class CourseInfo implements Parcelable {
         source.readTypedList(mModules,ModuleInfo.CREATOR);
     }
 
+    public static final Creator<CourseInfo> CREATOR = new Creator<CourseInfo>() {
+        @Override
+        public CourseInfo createFromParcel(Parcel in) {
+            return new CourseInfo(in);
+        }
+
+        @Override
+        public CourseInfo[] newArray(int size) {
+            return new CourseInfo[size];
+        }
+    };
+
     public String getCourseId() {
         return mCourseId;
     }
@@ -90,6 +102,8 @@ public final class CourseInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
+        dest.writeString(mCourseId);
+        dest.writeString(mTitle);
+        dest.writeTypedList(mModules);
     }
 }
