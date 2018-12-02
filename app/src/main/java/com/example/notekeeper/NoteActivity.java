@@ -14,6 +14,9 @@ import java.util.List;
 
 public class NoteActivity extends AppCompatActivity {
     public static final String NOTE_POSITION = "com.example.notekeeper.NOTE_POSITION";
+    public static final String ORIGINAL_NOTE_COURSE_ID = "com.example.notekeeper.ORIGINAL_NOTE_COURSE_ID";
+    public static final String ORIGINAL_NOTE_TITLE = "com.example.notekeeper.ORIGINAL_NOTE_TITLE";
+    public static final String ORIGINAL_NOTE_TEXT = "com.example.notekeeper.ORIGINAL_NOTE_TEXT";
     public static final int POSITION_NOT_SET = -1;
     private NoteInfo mNote;
     private boolean mIsNewNote;
@@ -22,6 +25,9 @@ public class NoteActivity extends AppCompatActivity {
     private EditText mTextNoteText;
     private int mNotePosition;
     private boolean mIsCancelling;
+    private String mOriginalNoteCourseId;
+    private String mOriginalNoteTitle;
+    private String mOriginalNoteText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +47,43 @@ public class NoteActivity extends AppCompatActivity {
 
         readDisplayStateValues();
 
+        if(savedInstanceState == null){
+            saveOriginalNoteValues();
+        } else{
+            restoreOriginalNoteValues(savedInstanceState);
+        }
+
         mTextNoteTitle = findViewById(R.id.text_note_title);
         mTextNoteText = findViewById(R.id.text_note_text);
 
         if(!mIsNewNote)
         displayNote(mSpinnerCourses, mTextNoteTitle, mTextNoteText);
+    }
+
+    private void restoreOriginalNoteValues(Bundle savedInstanceState) {
+        mOriginalNoteCourseId = savedInstanceState.getString(ORIGINAL_NOTE_COURSE_ID);
+        mOriginalNoteTitle = savedInstanceState.getString(ORIGINAL_NOTE_TITLE);
+        mOriginalNoteCourseId = savedInstanceState.getString(ORIGINAL_NOTE_COURSE_ID);
+    }
+
+    private void saveOriginalNoteValues() {
+        if(mIsNewNote){
+            return;
+        }
+        mOriginalNoteCourseId = mNote.getCourse().getCourseId();
+        mOriginalNoteTitle = mNote.getTitle();
+        mOriginalNoteText = mNote.getText();
+
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString(ORIGINAL_NOTE_COURSE_ID,mOriginalNoteCourseId);
+        outState.putString(ORIGINAL_NOTE_TITLE,mOriginalNoteTitle);
+        outState.putString(ORIGINAL_NOTE_TEXT,mOriginalNoteText);
     }
 
     private void displayNote(Spinner spinnerCourses, EditText textNoteTitle, EditText textNoteText) {
@@ -105,11 +143,21 @@ public class NoteActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         if(mIsCancelling) {
-            if (mIsNewNote)
+            if (mIsNewNote) {
                 DataManager.getInstance().removeNote(mNotePosition);
+            }else{
+                storePreviousNoteValues();
+            }
         } else{
             saveNote();
         }
+    }
+
+    private void storePreviousNoteValues() {
+        CourseInfo course = DataManager.getInstance().getCourse(mOriginalNoteCourseId);
+        mNote.setCourse(course);
+        mNote.setTitle(mOriginalNoteTitle);
+        mNote.setText(mOriginalNoteText);
     }
 
     private void saveNote() {
