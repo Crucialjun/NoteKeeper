@@ -22,10 +22,9 @@ public class DataManagerTest {
 
 
         NoteInfo compareNote = dataManager.getNotes().get(noteIndex);
-        assertSame(newNote,compareNote);
-        assertEquals(compareNote.getCourse(),course);
-        assertEquals(compareNote.getTitle(),noteTitle);
-        assertEquals(compareNote.getText(),noteText);
+        assertEquals(course,compareNote.getCourse());
+        assertEquals(noteTitle,compareNote.getTitle());
+        assertEquals(noteText,compareNote.getText());
 
     }
 }
