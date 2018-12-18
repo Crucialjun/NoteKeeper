@@ -38,7 +38,7 @@ public class NoteCreationTest {
 //        fabNewNote.perform(click());
         onView(withId(R.id.fab)).perform(click());
         onView(withId(R.id.spinner_courses)).perform(click());
-        
+
         onData(allOf(is(instanceOf(CourseInfo.class)), equalTo(course))).perform(click());
 
         onView(withId(R.id.text_note_title)).perform(typeText(noteTitle));
