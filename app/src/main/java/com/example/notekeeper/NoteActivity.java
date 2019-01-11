@@ -14,12 +14,12 @@ import android.widget.Spinner;
 import java.util.List;
 
 public class NoteActivity extends AppCompatActivity {
-    private final String TAG = getClass().getSimpleName();
     public static final String NOTE_POSITION = "com.example.notekeeper.NOTE_POSITION";
     public static final String ORIGINAL_NOTE_COURSE_ID = "com.example.notekeeper.ORIGINAL_NOTE_COURSE_ID";
     public static final String ORIGINAL_NOTE_TITLE = "com.example.notekeeper.ORIGINAL_NOTE_TITLE";
     public static final String ORIGINAL_NOTE_TEXT = "com.example.notekeeper.ORIGINAL_NOTE_TEXT";
     public static final int POSITION_NOT_SET = -1;
+    private final String TAG = getClass().getSimpleName();
     private NoteInfo mNote;
     private boolean mIsNewNote;
     private Spinner mSpinnerCourses;
@@ -38,30 +38,30 @@ public class NoteActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mSpinnerCourses =(Spinner) findViewById(R.id.spinner_courses);
+        mSpinnerCourses = (Spinner) findViewById(R.id.spinner_courses);
 
         List<CourseInfo> courses = DataManager.getInstance().getCourses();
         ArrayAdapter<CourseInfo> adapterCourses =
-                new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,courses);
+                new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, courses);
 
         adapterCourses.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinnerCourses.setAdapter(adapterCourses);
 
         readDisplayStateValues();
 
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             saveOriginalNoteValues();
-        } else{
+        } else {
             restoreOriginalNoteValues(savedInstanceState);
         }
 
         mTextNoteTitle = findViewById(R.id.text_note_title);
         mTextNoteText = findViewById(R.id.text_note_text);
 
-        if(!mIsNewNote)
-        displayNote(mSpinnerCourses, mTextNoteTitle, mTextNoteText);
+        if (!mIsNewNote)
+            displayNote(mSpinnerCourses, mTextNoteTitle, mTextNoteText);
 
-        Log.d(TAG,"On Create");
+        Log.d(TAG, "On Create");
     }
 
     private void restoreOriginalNoteValues(Bundle savedInstanceState) {
@@ -71,7 +71,7 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void saveOriginalNoteValues() {
-        if(mIsNewNote){
+        if (mIsNewNote) {
             return;
         }
         mOriginalNoteCourseId = mNote.getCourse().getCourseId();
@@ -85,9 +85,9 @@ public class NoteActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString(ORIGINAL_NOTE_COURSE_ID,mOriginalNoteCourseId);
-        outState.putString(ORIGINAL_NOTE_TITLE,mOriginalNoteTitle);
-        outState.putString(ORIGINAL_NOTE_TEXT,mOriginalNoteText);
+        outState.putString(ORIGINAL_NOTE_COURSE_ID, mOriginalNoteCourseId);
+        outState.putString(ORIGINAL_NOTE_TITLE, mOriginalNoteTitle);
+        outState.putString(ORIGINAL_NOTE_TEXT, mOriginalNoteText);
     }
 
     private void displayNote(Spinner spinnerCourses, EditText textNoteTitle, EditText textNoteText) {
@@ -101,14 +101,14 @@ public class NoteActivity extends AppCompatActivity {
 
     private void readDisplayStateValues() {
         Intent intent = getIntent();
-        mNotePosition  = intent.getIntExtra(NOTE_POSITION, POSITION_NOT_SET);
+        mNotePosition = intent.getIntExtra(NOTE_POSITION, POSITION_NOT_SET);
         mIsNewNote = mNotePosition == POSITION_NOT_SET;
 
-        if(mIsNewNote){
+        if (mIsNewNote) {
             createNewNote();
         }
 
-        Log.i(TAG,"mNotePosition: " + mNotePosition);
+        Log.i(TAG, "mNotePosition: " + mNotePosition);
 
         mNote = DataManager.getInstance().getNotes().get(mNotePosition);
     }
@@ -137,10 +137,10 @@ public class NoteActivity extends AppCompatActivity {
         if (id == R.id.action_send_mail) {
             sendEmail();
             return true;
-        } else if(id == R.id.action_cancel){
+        } else if (id == R.id.action_cancel) {
             mIsCancelling = true;
             finish();
-        }else if(id == R.id.action_next){
+        } else if (id == R.id.action_next) {
             moveNext();
         }
 
@@ -148,24 +148,30 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void moveNext() {
-        
+        saveNote();
+        ++mNotePosition;
+        mNote = DataManager.getInstance().getNotes().get(mNotePosition);
+
+        saveOriginalNoteValues();
+        displayNote(mSpinnerCourses, mTextNoteTitle, mTextNoteText);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if(mIsCancelling) {
-            Log.i(TAG,"Cancelling note at position: " + mNotePosition);
+        if (mIsCancelling) {
+            Log.i(TAG, "Cancelling note at position: " + mNotePosition);
             if (mIsNewNote) {
                 DataManager.getInstance().removeNote(mNotePosition);
-            }else{
+            } else {
                 storePreviousNoteValues();
             }
-        } else{
+        } else {
             saveNote();
         }
 
-        Log.d(TAG,"OnPause");
+        Log.d(TAG, "OnPause");
     }
 
     private void storePreviousNoteValues() {
@@ -176,7 +182,7 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void saveNote() {
-        mNote.setCourse((CourseInfo)mSpinnerCourses.getSelectedItem());
+        mNote.setCourse((CourseInfo) mSpinnerCourses.getSelectedItem());
         mNote.setTitle(mTextNoteTitle.getText().toString());
         mNote.setText(mTextNoteText.getText().toString());
     }
@@ -189,8 +195,8 @@ public class NoteActivity extends AppCompatActivity {
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("message/rfc2822");
-        intent.putExtra(Intent.EXTRA_SUBJECT,subject);
-        intent.putExtra(Intent.EXTRA_TEXT,text);
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_TEXT, text);
         startActivity(intent);
     }
 }
