@@ -12,12 +12,9 @@ public final class NoteKeeperDatabaseContract {
 
         //CREATE TABLE course_info (course_id,course_title)
         public static final String SQL_CREATE_TABLE = "CREATE TABLE "
-                + TABLE_NAME
-                + " ("
-                + COLUMN_COURSE_ID
-                + ", "
-                + COLUMN_COURSE_TITLE
-                + ")";
+                + TABLE_NAME + " ("
+                + COLUMN_COURSE_ID + " TEXT UNIQUE NOT NULL, "
+                + COLUMN_COURSE_TITLE + " TEXT NOT NULL)";
     }
 
     public static final class NoteInfoEntry{
@@ -28,14 +25,10 @@ public final class NoteKeeperDatabaseContract {
 
         //CREATE TABLE course_info (course_id,course_title)
         public static final String SQL_CREATE_TABLE = "CREATE TABLE "
-                + TABLE_NAME
-                + " ("
-                + COLUMN_NOTE_TITLE
-                + ", "
-                + COLUMN_NOTE_TEXT
-                + ", "
-                + COLUMN_COURSE_ID
-                + ")";
+                + TABLE_NAME + " ("
+                + COLUMN_NOTE_TITLE + " TEXT NOT NULL, "
+                + COLUMN_NOTE_TEXT + " TEXT, "
+                + COLUMN_COURSE_ID + " TEXT NOT NULL)";
     }
 
 
