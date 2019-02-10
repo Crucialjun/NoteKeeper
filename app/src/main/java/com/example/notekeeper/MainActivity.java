@@ -126,7 +126,6 @@ public class MainActivity extends AppCompatActivity
         mRecyclerItems.setLayoutManager(mCoursesLayoutManager);
         mRecyclerItems.setAdapter(mCourseRecyclerAdapter);
 
-        mDbOpenHelper.getReadableDatabase();
         selectNavigationMenuItem(R.id.nav_courses);
 
 
@@ -136,6 +135,7 @@ public class MainActivity extends AppCompatActivity
         mRecyclerItems.setLayoutManager(mNotesLayoutManager);
         mRecyclerItems.setAdapter(mNoteRecyclerAdapter);
 
+        mDbOpenHelper.getReadableDatabase();
         selectNavigationMenuItem(R.id.nav_notes);
     }
 
