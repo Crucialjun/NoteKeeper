@@ -88,23 +88,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initializeDisplayContent() {
-//        final ListView listNotes = findViewById(R.id.list_notes);
-//
-//        List<NoteInfo> notes = DataManager.getInstance().getNotes();
-//
-//        adapterNotes = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,notes);
-//
-//        listNotes.setAdapter(adapterNotes);
-//
-//        listNotes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Intent intent = new Intent(NoteListActivity.this,NoteActivity.class);
-//                // NoteInfo note = (NoteInfo) listNotes.getItemAtPosition(position);
-//                intent.putExtra(NoteActivity.NOTE_POSITION,position);
-//                startActivity(intent);
-//            }
-//        });
+        DataManager.loadFromDatabase(mDbOpenHelper);
+
         mRecyclerItems = findViewById(R.id.list_items);
         mNotesLayoutManager = new LinearLayoutManager(this);
 
@@ -134,8 +119,6 @@ public class MainActivity extends AppCompatActivity
     private void displayNotes() {
         mRecyclerItems.setLayoutManager(mNotesLayoutManager);
         mRecyclerItems.setAdapter(mNoteRecyclerAdapter);
-
-        mDbOpenHelper.getReadableDatabase();
         selectNavigationMenuItem(R.id.nav_notes);
     }
 
