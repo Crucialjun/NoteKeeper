@@ -9,6 +9,7 @@
         android:title="Cancel"
         app:showAsAction="ifRoom|withText" />
     <item
+        android:visible="false"
         android:id="@+id/action_next"
         android:icon="@android:drawable/ic_media_next"
         android:orderInCategory="101"
