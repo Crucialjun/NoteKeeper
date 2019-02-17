@@ -68,6 +68,7 @@ public class NoteActivity extends AppCompatActivity {
         mAdapterCourses.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinnerCourses.setAdapter(mAdapterCourses);
 
+        loadCourseData();
         readDisplayStateValues();
 
         if (savedInstanceState == null) {
@@ -83,6 +84,21 @@ public class NoteActivity extends AppCompatActivity {
             loadNoteData();
 
         Log.d(TAG, "On Create");
+    }
+
+    private void loadCourseData() {
+        SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
+
+        String[] courseColums = {CourseInfoEntry.COLUMN_COURSE_TITLE
+                ,CourseInfoEntry.COLUMN_COURSE_TITLE
+                ,CourseInfoEntry._ID};
+
+        Cursor cursor = db.query(CourseInfoEntry.TABLE_NAME,courseColums,null
+                ,null,null,null
+                ,CourseInfoEntry.COLUMN_COURSE_TITLE);
+
+        mAdapterCourses.changeCursor(cursor);
+
     }
 
     private void loadNoteData() {
