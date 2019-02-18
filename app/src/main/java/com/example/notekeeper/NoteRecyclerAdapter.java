@@ -11,12 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
+
 import java.util.List;
 
 public class NoteRecyclerAdapter extends RecyclerView.Adapter<NoteRecyclerAdapter.ViewHolder>{
     private final Context mContext;
     private Cursor mCursor;
     private final LayoutInflater mLayoutInflater;
+    private int mCoursePos,mNoteTitlePos,mIdPos;
 
     public NoteRecyclerAdapter(Context context, Cursor cursor) {
         mContext = context;
@@ -31,11 +34,14 @@ public class NoteRecyclerAdapter extends RecyclerView.Adapter<NoteRecyclerAdapte
             return;
 
         //Get Column indexes from mCursor
+        mCoursePos = mCursor.getColumnIndex(NoteInfoEntry.COLUMN_COURSE_ID);
+        mNoteTitlePos = mCursor.getColumnIndex(NoteInfoEntry.COLUMN_NOTE_TITLE);
+        mIdPos = mCursor.getColumnIndex(NoteInfoEntry._ID);
 
     }
 
     public void changeCursor(Cursor cursor){
-        if(cursor != null)
+        if(mCursor != null)
             mCursor.close();
         mCursor = cursor;
         populateColumnPositions();
@@ -51,16 +57,21 @@ public class NoteRecyclerAdapter extends RecyclerView.Adapter<NoteRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        NoteInfo note = mNotes.get(i);
-        viewHolder.mTextCourse.setText(note.getCourse().getTitle());
-        viewHolder.mTextTitle.setText(note.getTitle());
-        viewHolder.mId = note.getId();
+        mCursor.moveToPosition(i);
+        String course = mCursor.getString(mCoursePos);
+        String  noteTitle = mCursor.getString(mNoteTitlePos);
+        int id = mCursor.getInt(mIdPos);
+
+        viewHolder.mTextCourse.setText(course);
+        viewHolder.mTextTitle.setText(noteTitle);
+        viewHolder.mId = id;
 
     }
 
     @Override
     public int getItemCount() {
-        return mNotes.size();
+
+        return mCursor == null ? 0 : mCursor.getCount();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

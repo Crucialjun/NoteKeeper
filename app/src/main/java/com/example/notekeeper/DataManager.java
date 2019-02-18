@@ -29,7 +29,7 @@ public class DataManager {
     }
     public static void loadFromDatabase(NoteKeeperOpenHelper dbHelper){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] courseColumns = {
+        final String[] courseColumns = {
                 CourseInfoEntry.COLUMN_COURSE_ID,
                 CourseInfoEntry.COLUMN_COURSE_TITLE};
 
@@ -38,7 +38,7 @@ public class DataManager {
 
         loadCoursesFromDatabase(courseCursor);
 
-        String[] noteColumns = {
+        final String[] noteColumns = {
                 NoteInfoEntry.COLUMN_NOTE_TITLE,
                 NoteInfoEntry.COLUMN_NOTE_TEXT,
                 NoteInfoEntry.COLUMN_COURSE_ID,
