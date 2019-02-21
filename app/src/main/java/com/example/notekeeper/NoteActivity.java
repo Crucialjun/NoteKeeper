@@ -84,7 +84,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         mTextNoteText = findViewById(R.id.text_note_text);
 
         if (!mIsNewNote)
-            getLoaderManager().initLoader(LOADER_NOTES, null, this);
+            getSupportLoaderManager().initLoader(LOADER_NOTES, null, this);
 
         Log.d(TAG, "On Create");
     }
