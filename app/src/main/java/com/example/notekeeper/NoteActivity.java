@@ -1,5 +1,7 @@
 package com.example.notekeeper;
 
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,9 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
 
 import com.example.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
@@ -29,6 +28,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
     public static final String ORIGINAL_NOTE_TEXT = "com.example.notekeeper.ORIGINAL_NOTE_TEXT";
     public static final int ID_NOT_SET = -1;
     public static final int LOADER_NOTES = 0;
+    public static final int LOADER_COURSES = 1;
     private final String TAG = getClass().getSimpleName();
     private NoteInfo mNote = new NoteInfo(DataManager.getInstance().getCourses().get(0), "", "");
     private boolean mIsNewNote;
@@ -46,6 +46,8 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
     private int mNoteTitlePos;
     private int mNoteTextPos;
     private SimpleCursorAdapter mAdapterCourses;
+    private boolean mCoursesQueryFinished;
+    private boolean mNotesQueryFinished;
 
     @Override
     protected void onDestroy() {
@@ -71,7 +73,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         mAdapterCourses.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinnerCourses.setAdapter(mAdapterCourses);
 
-        loadCourseData();
+        getLoaderManager().initLoader(LOADER_COURSES, null, this);
         readDisplayStateValues();
 
         if (savedInstanceState == null) {
@@ -84,7 +86,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         mTextNoteText = findViewById(R.id.text_note_text);
 
         if (!mIsNewNote)
-            getSupportLoaderManager().initLoader(LOADER_NOTES, null, this);
+            getLoaderManager().initLoader(LOADER_NOTES, null, this);
 
         Log.d(TAG, "On Create");
     }
@@ -163,6 +165,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
         int courseIndex = getIndexofCourseId(courseId);
+
         mSpinnerCourses.setSelection(courseIndex);
         mTextNoteTitle.setText(noteTitle);
         mTextNoteText.setText(noteText);
@@ -299,15 +302,58 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @NonNull
     @Override
-    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        CursorLoader loader = null;
+    public android.content.Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        android.content.CursorLoader loader = null;
         if (id == LOADER_NOTES)
             loader = createLoaderNotes();
+        else if (id == LOADER_COURSES)
+            loader = createLoaderCourses();
         return loader;
     }
 
-    private CursorLoader createLoaderNotes() {
+    @Override
+    public void onLoadFinished(android.content.Loader<Cursor> loader, Cursor data) {
+        if (loader.getId() == LOADER_NOTES)
+            loadFinishedNotes(data);
+        else if (loader.getId() == LOADER_COURSES) {
+            mAdapterCourses.changeCursor(data);
+            mCoursesQueryFinished = true;
+            displayNoteWhenQueriesFinished();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(android.content.Loader<Cursor> loader) {
+        if (loader.getId() == LOADER_NOTES) {
+            if (mNoteCursor != null)
+                mNoteCursor.close();
+        } else if (loader.getId() == LOADER_COURSES) {
+            mAdapterCourses.changeCursor(null);
+        }
+
+    }
+
+    private android.content.CursorLoader createLoaderCourses() {
+        mCoursesQueryFinished = false;
         return new CursorLoader(this) {
+            @Override
+            public Cursor loadInBackground() {
+                SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
+
+                String[] courseColums = {CourseInfoEntry.COLUMN_COURSE_TITLE
+                        , CourseInfoEntry.COLUMN_COURSE_TITLE
+                        , CourseInfoEntry._ID};
+
+                return db.query(CourseInfoEntry.TABLE_NAME, courseColums, null
+                        , null, null, null
+                        , CourseInfoEntry.COLUMN_COURSE_TITLE);
+            }
+        };
+    }
+
+    private android.content.CursorLoader createLoaderNotes() {
+        mNotesQueryFinished = false;
+        return new android.content.CursorLoader(this) {
             @Override
             public Cursor loadInBackground() {
                 SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
@@ -329,11 +375,6 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         };
     }
 
-    @Override
-    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        if(loader.getId() == LOADER_NOTES)
-            loadFinishedNotes(data);
-    }
 
     private void loadFinishedNotes(Cursor data) {
         mNoteCursor = data;
@@ -341,15 +382,14 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         mNoteTitlePos = mNoteCursor.getColumnIndex(NoteInfoEntry.COLUMN_NOTE_TITLE);
         mNoteTextPos = mNoteCursor.getColumnIndex(NoteInfoEntry.COLUMN_NOTE_TEXT);
         mNoteCursor.moveToNext();
-        displayNote();
+        mNotesQueryFinished = true;
+        displayNoteWhenQueriesFinished();
     }
 
-    @Override
-    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-        if(loader.getId() == LOADER_NOTES){
-            if(mNoteCursor != null)
-                mNoteCursor.close();
-        }
+    private void displayNoteWhenQueriesFinished() {
+        if (mNotesQueryFinished && mCoursesQueryFinished)
+            displayNote();
     }
+
 
 }
