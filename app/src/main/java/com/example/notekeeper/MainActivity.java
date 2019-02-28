@@ -1,6 +1,8 @@
 package com.example.notekeeper;
 
+import android.annotation.SuppressLint;
 import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
@@ -13,8 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -32,6 +32,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.List;
 
 import static com.example.notekeeper.NoteActivity.LOADER_NOTES;
+import static com.example.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -228,25 +229,40 @@ public class MainActivity extends AppCompatActivity
         Snackbar.make(view,message_id,Snackbar.LENGTH_LONG).show();
     }
 
-    @NonNull
+    @SuppressLint("StaticFieldLeak")
     @Override
-    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        android.content.CursorLoader loader = null;
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        CursorLoader loader = null;
         if (id == LOADER_NOTES) {
-            loader = new android.content.CursorLoader(this) {
+            loader = new CursorLoader(this) {
                 @Override
                 public Cursor loadInBackground() {
                     SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
 
                     final String[] noteColumns = {
+                            NoteInfoEntry._ID,
                             NoteInfoEntry.COLUMN_NOTE_TITLE,
-                            NoteInfoEntry.COLUMN_COURSE_ID,
-                            NoteInfoEntry._ID
+                            NoteInfoEntry.COLUMN_COURSE_ID
                     };
 
                     String noteOrderBy = NoteInfoEntry.COLUMN_COURSE_ID + "," + NoteInfoEntry.COLUMN_NOTE_TITLE;
 
-                    return db.query(NoteInfoEntry.TABLE_NAME, noteColumns
+                    //Note_info JOIN course_info ON note_info.course_id = course_info.course_id
+
+                    String tablesWithJoin = NoteInfoEntry.TABLE_NAME
+                            + " JOIN "
+                            + CourseInfoEntry.TABLE_NAME
+                            + " ON "
+                            + NoteInfoEntry.TABLE_NAME
+                            + "."
+                            + NoteInfoEntry.COLUMN_COURSE_ID
+                            + " = "
+                            + CourseInfoEntry.TABLE_NAME
+                            + "."
+                            + CourseInfoEntry.COLUMN_COURSE_ID;
+
+
+                    return db.query(tablesWithJoin, noteColumns
                             , null, null, null, null, noteOrderBy);
                 }
             };
