@@ -19,6 +19,7 @@
             android:layout_height="wrap_content">
 
             <ImageView
+                tools:ignore="ContentDescription"
                 android:id="@+id/imageView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
