@@ -24,19 +24,19 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
-import static com.example.notekeeper.NoteActivity.LOADER_NOTES;
 import static com.example.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
+import static com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static final int LOADER_NOTES = 0;
     private NoteRecyclerAdapter mNoteRecyclerAdapter;
     private RecyclerView mRecyclerItems;
     private LinearLayoutManager mNotesLayoutManager;
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity
                     final String[] noteColumns = {
                             NoteInfoEntry.getQName(NoteInfoEntry._ID),
                             NoteInfoEntry.COLUMN_NOTE_TITLE,
-                            CourseInfoEntry.COLUMN_COURSE_ID
+                            CourseInfoEntry.COLUMN_COURSE_TITLE
                     };
 
                     String noteOrderBy = CourseInfoEntry.COLUMN_COURSE_TITLE

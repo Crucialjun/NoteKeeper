@@ -14,8 +14,6 @@ import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -49,6 +47,8 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
     private SimpleCursorAdapter mAdapterCourses;
     private boolean mCoursesQueryFinished;
     private boolean mNotesQueryFinished;
+    private String mCursorCourseId;
+    private boolean mMore;
 
     @Override
     protected void onDestroy() {
@@ -178,14 +178,16 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         int courseIdpos = cursor.getColumnIndex(CourseInfoEntry.COLUMN_COURSE_ID);
         int courseRowIndex = 0;
 
-        boolean more = cursor.moveToFirst();
-        while (more) {
-            String cursorCourseId = cursor.getString(courseIdpos);
-            if (courseId.equals(cursorCourseId))
+        if (cursor.getCount() > 0)
+            mMore = cursor.moveToFirst();
+        while (mMore) {
+            if (courseIdpos > 0)
+                mCursorCourseId = cursor.getString(courseIdpos);
+            if (courseId.equals(mCursorCourseId))
                 break;
 
             courseRowIndex++;
-            more = cursor.moveToNext();
+            mMore = cursor.moveToNext();
         }
 
         return courseRowIndex;
@@ -323,9 +325,9 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         startActivity(intent);
     }
 
-    @NonNull
+
     @Override
-    public android.content.Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+    public android.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
         android.content.CursorLoader loader = null;
         if (id == LOADER_NOTES)
             loader = createLoaderNotes();
