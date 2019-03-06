@@ -1,6 +1,7 @@
 package com.example.notekeeper;
 
 import android.app.LoaderManager;
+import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
@@ -282,9 +283,31 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void saveNote() {
-        //mNote.setCourse((CourseInfo) mSpinnerCourses.getSelectedItem());
-        mNote.setTitle(mTextNoteTitle.getText().toString());
-        mNote.setText(mTextNoteText.getText().toString());
+        String courseId = selectedCourseId();
+        String noteTitle = mTextNoteTitle.getText().toString();
+        String noteText = mTextNoteText.getText().toString();
+        saveNoteToDatabase(courseId, noteTitle, noteText);
+    }
+
+    private void saveNoteToDatabase(String courseId, String noteTitle, String noteText) {
+        String selection = NoteInfoEntry._ID + " = ?";
+        String[] selectionArgs = {Integer.toString(mNoteId)};
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(NoteInfoEntry.COLUMN_COURSE_ID, courseId);
+        contentValues.put(NoteInfoEntry.COLUMN_NOTE_TITLE, noteTitle);
+        contentValues.put(NoteInfoEntry.COLUMN_NOTE_TEXT, noteText);
+
+        SQLiteDatabase db = mDbOpenHelper.getWritableDatabase();
+        db.update(NoteInfoEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+    }
+
+    private String selectedCourseId() {
+        int selectedPosition = mSpinnerCourses.getSelectedItemPosition();
+        Cursor cursor = mAdapterCourses.getCursor();
+        cursor.moveToPosition(selectedPosition);
+        int courseIdPos = cursor.getColumnIndex(CourseInfoEntry.COLUMN_COURSE_ID);
+        return cursor.getString(courseIdPos);
     }
 
     private void sendEmail() {
