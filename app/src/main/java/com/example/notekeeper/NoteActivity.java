@@ -208,9 +208,13 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void createNewNote() {
-        DataManager dm = DataManager.getInstance();
-        mNoteId = dm.createNewNote();
-        //mNote = dm.getNotes().get(mNoteId);
+        ContentValues values = new ContentValues();
+        values.put(NoteInfoEntry.COLUMN_COURSE_ID, "");
+        values.put(NoteInfoEntry.COLUMN_NOTE_TITLE, "");
+        values.put(NoteInfoEntry.COLUMN_NOTE_TEXT, "");
+
+        SQLiteDatabase db = mDbOpenHelper.getWritableDatabase();
+        mNoteId = (int) db.insert(NoteInfoEntry.TABLE_NAME, null, values);
     }
 
     @Override
@@ -266,7 +270,7 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         if (mIsCancelling) {
             Log.i(TAG, "Cancelling note at position: " + mNoteId);
             if (mIsNewNote) {
-                DataManager.getInstance().removeNote(mNoteId);
+                deleteNoteFromDatabase();
             } else {
                 storePreviousNoteValues();
             }
@@ -275,6 +279,14 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         }
 
         Log.d(TAG, "OnPause");
+    }
+
+    private void deleteNoteFromDatabase() {
+        String selection = NoteInfoEntry._ID + " =";
+        String[] selectionArgs = {Integer.toString(mNoteId)};
+        SQLiteDatabase db = mDbOpenHelper.getWritableDatabase();
+        db.delete(NoteInfoEntry.TABLE_NAME, selection, selectionArgs);
+
     }
 
     private void storePreviousNoteValues() {
