@@ -24,18 +24,21 @@ public final class NoteKeeperProviderContract {
         String COLUMN_NOTE_TITLE = "note_title";
     }
 
-    public static final class Courses implements CoursesColumns, BaseColumns {
+    public static final class Courses implements CoursesColumns, BaseColumns, CoursesIdColums {
         public static final String PATH = "courses";
 
         //content://com.example.notekeeper.provider/courses
         public static final Uri CONTENT_URI = Uri.withAppendedPath(AUTHORITY_URI, PATH);
     }
 
-    public static final class Notes implements NotesColumns, BaseColumns {
+    public static final class Notes implements NotesColumns, BaseColumns, CoursesIdColums, CoursesColumns {
         public static final String PATH = "notes";
 
         //content://com.example.notekeeper.provider/notes
         public static final Uri CONTENT_URI = Uri.withAppendedPath(AUTHORITY_URI, PATH);
+        public static final String PATH_EXPANDED = "notes_expanded";
+        public static final Uri CONTENT_EXPANDED_URI = Uri.withAppendedPath(AUTHORITY_URI, PATH_EXPANDED);
+
     }
 
 

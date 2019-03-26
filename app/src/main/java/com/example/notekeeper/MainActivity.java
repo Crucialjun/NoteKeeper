@@ -30,8 +30,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
-import static com.example.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 import static com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
+import static com.example.notekeeper.NoteKeeperProviderContract.Notes;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -57,11 +57,10 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this,NoteActivity.class));
+                startActivity(new Intent(MainActivity.this, NoteActivity.class));
 
             }
         });
-
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -107,8 +106,8 @@ public class MainActivity extends AppCompatActivity
         TextView textEmailAddress = headerView.findViewById(R.id.text_email_address);
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        String username = pref.getString("user_display_name","Your Name");
-        String email = pref.getString("user_email_address","yourname@yourhost.com");
+        String username = pref.getString("user_display_name", "Your Name");
+        String email = pref.getString("user_email_address", "yourname@yourhost.com");
 
         textUserName.setText(username);
         textEmailAddress.setText(email);
@@ -120,14 +119,14 @@ public class MainActivity extends AppCompatActivity
         mRecyclerItems = findViewById(R.id.list_items);
         mNotesLayoutManager = new LinearLayoutManager(this);
 
-        mCoursesLayoutManager = new GridLayoutManager(this,getResources()
+        mCoursesLayoutManager = new GridLayoutManager(this, getResources()
                 .getInteger(R.integer.course_grid_span));
 
 
-        mNoteRecyclerAdapter = new NoteRecyclerAdapter(this,null);
+        mNoteRecyclerAdapter = new NoteRecyclerAdapter(this, null);
 
         List<CourseInfo> courses = DataManager.getInstance().getCourses();
-        mCourseRecyclerAdapter = new CourseRecyclerAdapter(this,courses);
+        mCourseRecyclerAdapter = new CourseRecyclerAdapter(this, courses);
 
 
         displayNotes();
@@ -181,7 +180,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            startActivity(new Intent(this,SettingsActivity.class));
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
@@ -218,15 +217,15 @@ public class MainActivity extends AppCompatActivity
 
     private void handleShare() {
         View view = findViewById(R.id.list_items);
-        Snackbar.make(view,"Share to - " + PreferenceManager
+        Snackbar.make(view, "Share to - " + PreferenceManager
                 .getDefaultSharedPreferences(this).getString("user_favorite_social"
-                        ,"http://plus.google.com"),Snackbar.LENGTH_LONG).show();
+                        , "http://plus.google.com"), Snackbar.LENGTH_LONG).show();
 
     }
 
     private void handleSelection(int message_id) {
         View view = findViewById(R.id.list_items);
-        Snackbar.make(view,message_id,Snackbar.LENGTH_LONG).show();
+        Snackbar.make(view, message_id, Snackbar.LENGTH_LONG).show();
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -234,36 +233,25 @@ public class MainActivity extends AppCompatActivity
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         CursorLoader loader = null;
         if (id == LOADER_NOTES) {
-            loader = new CursorLoader(this) {
-                @Override
-                public Cursor loadInBackground() {
-                    SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
 
-                    final String[] noteColumns = {
-                            NoteInfoEntry.getQName(NoteInfoEntry._ID),
-                            NoteInfoEntry.COLUMN_NOTE_TITLE,
-                            CourseInfoEntry.COLUMN_COURSE_TITLE
-                    };
-
-                    String noteOrderBy = CourseInfoEntry.COLUMN_COURSE_TITLE
-                            + ","
-                            + NoteInfoEntry.COLUMN_NOTE_TITLE;
-
-                    //Note_info JOIN course_info ON note_info.course_id = course_info.course_id
-
-                    String tablesWithJoin = NoteInfoEntry.TABLE_NAME + " JOIN "
-                            + CourseInfoEntry.TABLE_NAME
-                            + " ON "
-                            + NoteInfoEntry.getQName(NoteInfoEntry.COLUMN_COURSE_ID)
-                            + " = "
-                            + CourseInfoEntry.getQName(CourseInfoEntry.COLUMN_COURSE_ID);
-
-
-                    return db.query(tablesWithJoin, noteColumns
-                            , null, null, null, null, noteOrderBy);
-                }
+            final String[] noteColumns = {
+                    Notes._ID,
+                    Notes.COLUMN_NOTE_TITLE,
+                    Notes.COLUMN_COURSE_TITLE
             };
+
+            final String noteOrderBy = Notes.COLUMN_COURSE_TITLE
+                    + ","
+                    + Notes.COLUMN_NOTE_TITLE;
+
+            loader = new CursorLoader(this
+                    , Notes.CONTENT_EXPANDED_URI
+                    , noteColumns
+                    , null
+                    , null
+                    , noteOrderBy);
         }
+
         return loader;
     }
 
@@ -281,7 +269,6 @@ public class MainActivity extends AppCompatActivity
             mNoteRecyclerAdapter.changeCursor(null);
         }
     }
-
 
 
 }
