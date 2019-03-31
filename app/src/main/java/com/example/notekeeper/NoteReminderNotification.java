@@ -2,6 +2,7 @@ package com.example.notekeeper;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -63,6 +64,7 @@ public class NoteReminderNotification {
                 .setSmallIcon(R.drawable.ic_stat_note_reminder)
                 .setContentTitle("Review Note")
                 .setContentText(noteText)
+                .setChannelId("Channel 1")
 
                 // All fields below this line are optional.
 
@@ -108,6 +110,11 @@ public class NoteReminderNotification {
     private static void notify(final Context context, final Notification notification) {
         final NotificationManager nm = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
+        CharSequence name = "My Channel";
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("Channel 1", name, NotificationManager.IMPORTANCE_LOW);
+            nm.createNotificationChannel(channel);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
             nm.notify(NOTIFICATION_TAG, 0, notification);
         } else {
