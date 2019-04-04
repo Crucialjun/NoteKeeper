@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
@@ -44,7 +43,7 @@ public class NoteReminderNotification {
      * @see #cancel(Context)
      */
     public static void notify(final Context context,
-                              final String noteText, final String noteTitle) {
+                              final String noteTitle, final String noteText, int noteId) {
         final Resources res = context.getResources();
 
         // This image is used as the notification's large icon (thumbnail).
@@ -52,6 +51,8 @@ public class NoteReminderNotification {
         final Bitmap picture = BitmapFactory.decodeResource(res, R.drawable.example_picture);
 
 
+        Intent noteactivityIntent = new Intent(context, NoteActivity.class);
+        noteactivityIntent.putExtra(NoteActivity.NOTE_ID, noteId);
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 
@@ -101,8 +102,15 @@ public class NoteReminderNotification {
                         PendingIntent.getActivity(
                                 context,
                                 0,
-                                new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com")),
+                                noteactivityIntent,
                                 PendingIntent.FLAG_UPDATE_CURRENT))
+
+                .addAction(0, "View all Notes", PendingIntent.getActivity
+                        (context, 0
+                                , new Intent(context, MainActivity.class)
+                                , PendingIntent.FLAG_UPDATE_CURRENT))
+
+
 
                 // Automatically dismiss the notification when it is touched.
                 .setAutoCancel(true);
